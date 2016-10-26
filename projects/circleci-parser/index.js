@@ -5,7 +5,7 @@ fetch.Promise = Promise;
 
 var CIRCLECI_HOST = 'https://circleci.com';
 var CIRCLECI_API = '/api/v1.1';
-var CIRCLECI_TKN = '3cf9ee04d9963bea7fe93a8350bd0a54cb1802f5'; // TODO: move it to openshift param
+var CIRCLECI_TKN = '3cf9ee04d9963bea7fe93a8350bd0a54cb1802f5';
 
 var STATUS = {
   RUNNING: 'running',
@@ -20,6 +20,13 @@ var RESULT = {
   UNKNOWN: 'yel',
   BAD: 'red'
 };
+
+var PROJECTS = [
+  'gaia',
+  'publishing-toolkit-ui',
+  'publishing-toolkit-api',
+  'publishing-toolkit-dal'
+];
 
 function getStatusResult(build) {
   var statusResult = '';
@@ -37,10 +44,29 @@ function getStatusResult(build) {
   return statusResult;
 }
 
-module.exports = function addCircleCIParser (app) {
-  app.get('/circleci/:project', function (req, res) {
-    var projectName = req.params.project;
+module.exports = function addCircleCIParser(app) {
+  app.get('/circleci/all', function (req, res) {
+    Promise.map(PROJECTS, function (projectName) {
+      var circleciUrl = CIRCLECI_HOST + CIRCLECI_API + '/project/github/dailybeast/' + projectName + '?circle-token=' + CIRCLECI_TKN;
 
+      return fetch(circleciUrl)
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (json) {
+          if (json && json.length > 0) {
+            var lastBuild = json[0];
+            return getStatusResult(lastBuild);
+          }
+          return 'err';
+        });
+    }, { concurrency: 1 })
+      .then(function (result) {
+        res.json(result.join(''));
+      });
+  });
+
+  app.get('/circleci/:project', function (req, res) {
     if (projectName) {
       var circleciUrl = CIRCLECI_HOST + CIRCLECI_API + '/project/github/dailybeast/' + projectName + '?circle-token=' + CIRCLECI_TKN;
 
