@@ -1,0 +1,13 @@
+language: node_js
+
+node_js:
+  - "5.1"
+
+deploy:
+  provider: openshift
+  user: "dementorvinegar@gmail.com"
+  password: "NHMVC4ePk2" # can be encrypted
+  domain: "demven"
+  app: arduino
+  deployment_branch: master
+  skip_cleanup: true

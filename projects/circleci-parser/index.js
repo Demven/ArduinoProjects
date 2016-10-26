@@ -48,7 +48,7 @@ module.exports = function addCircleCIParser(app) {
   app.get('/circleci', function (req, res) {
     res.send('This is CircleCI project, use the name of project to see current status.');
   });
-  
+
   app.get('/circleci/all', function (req, res) {
     Promise.map(PROJECTS, function (projectName) {
       var circleciUrl = CIRCLECI_HOST + CIRCLECI_API + '/project/github/dailybeast/' + projectName + '?circle-token=' + CIRCLECI_TKN;
