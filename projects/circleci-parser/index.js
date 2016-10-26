@@ -45,6 +45,10 @@ function getStatusResult(build) {
 }
 
 module.exports = function addCircleCIParser(app) {
+  app.get('/circleci', function (req, res) {
+    res.send('This is CircleCI project, use the name of project to see current status.');
+  });
+  
   app.get('/circleci/all', function (req, res) {
     Promise.map(PROJECTS, function (projectName) {
       var circleciUrl = CIRCLECI_HOST + CIRCLECI_API + '/project/github/dailybeast/' + projectName + '?circle-token=' + CIRCLECI_TKN;
@@ -62,11 +66,13 @@ module.exports = function addCircleCIParser(app) {
         });
     }, { concurrency: 1 })
       .then(function (result) {
-        res.json(result.join(''));
+        res.send(result.join(''));
       });
   });
 
   app.get('/circleci/:project', function (req, res) {
+    var projectName = req.params.project;
+
     if (projectName) {
       var circleciUrl = CIRCLECI_HOST + CIRCLECI_API + '/project/github/dailybeast/' + projectName + '?circle-token=' + CIRCLECI_TKN;
 
@@ -78,7 +84,7 @@ module.exports = function addCircleCIParser(app) {
           if (json && json.length > 0) {
             var lastBuild = json[0];
             var statusResult = getStatusResult(lastBuild);
-            res.json(statusResult);
+            res.send(statusResult);
           } else {
             res.status(500).send('Server Error: empty response from CI');
           }
