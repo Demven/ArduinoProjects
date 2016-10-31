@@ -93,4 +93,12 @@ module.exports = function addCircleCIParser(app) {
       res.status(400).send('Need project name to proceed!');
     }
   });
+
+  app.get('/circleci/test/:gaia/:ui/:api/:dal', function (req, res) {
+    if (req.params.gaia && req.params.ui && req.params.api && req.params.dal) {
+      res.send(req.params.gaia + req.params.ui + req.params.api + req.params.dal);
+    } else {
+      res.status(400).send('Provide values for each project /test/:gaia/:ui/:api/:dal');
+    }
+  });
 };
